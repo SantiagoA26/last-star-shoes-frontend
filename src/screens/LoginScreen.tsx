@@ -8,22 +8,28 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Colors } from "../constants/Colors";
+
+type Role = "Cliente" | "Admin";
+
+interface LoginResponse {
+  nombre: string;
+}
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [rol, setRol] = useState("Cliente"); // 'Cliente' o 'Admin'
-  const [correo, setCorreo] = useState("");
-  const [contrasena, setContrasena] = useState("");
-  const [cargando, setCargando] = useState(false);
+  const [rol, setRol] = useState<Role>("Cliente");
+  const [correo, setCorreo] = useState<string>("");
+  const [contrasena, setContrasena] = useState<string>("");
+  const [cargando, setCargando] = useState<boolean>(false);
 
-  // Función auxiliar para limpiar campos
-  const cambiarRol = (nuevoRol) => {
+  const cambiarRol = (nuevoRol: Role): void => {
     setRol(nuevoRol);
     setCorreo("");
     setContrasena("");
   };
 
-  const manejarLogin = async () => {
+  const manejarLogin = async (): Promise<void> => {
     if (!correo || !contrasena) {
       alert("Por favor, completa todos los campos.");
       return;
@@ -33,12 +39,10 @@ export default function LoginScreen() {
 
     try {
       const puertoApi = "5039";
-      let url =
+      const url =
         rol === "Cliente"
           ? `http://localhost:${puertoApi}/api/Clientes/login`
           : `http://localhost:${puertoApi}/api/Administradores/login`;
-
-      console.log("Enviando credenciales a:", url);
 
       const respuesta = await fetch(url, {
         method: "POST",
@@ -61,15 +65,13 @@ export default function LoginScreen() {
         return;
       }
 
-      const datos = await respuesta.json();
+      const datos: LoginResponse = await respuesta.json();
       alert(`¡Bienvenido de nuevo, ${datos.nombre}!`);
 
       router.back();
     } catch (error) {
-      console.error("Error en la petición fetch:", error);
-      alert(
-        "Error de conexión con el servidor. Verifica que la API esté encendida.",
-      );
+      console.error("Error en la petición:", error);
+      alert("Error de conexión con el servidor.");
     } finally {
       setCargando(false);
     }
@@ -81,7 +83,6 @@ export default function LoginScreen() {
         <Text style={styles.title}>Last Star Shoes</Text>
         <Text style={styles.subtitle}>Ingresa a tu cuenta</Text>
 
-        {/* Selector de Rol */}
         <View style={styles.selectorContainer}>
           <TouchableOpacity
             style={[
@@ -117,12 +118,11 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Inputs */}
         <Text style={styles.label}>Correo Electrónico</Text>
         <TextInput
           style={styles.input}
           placeholder="ejemplo@correo.com"
-          placeholderTextColor="#999999"
+          placeholderTextColor={Colors.gray}
           value={correo}
           onChangeText={setCorreo}
           keyboardType="email-address"
@@ -133,20 +133,19 @@ export default function LoginScreen() {
         <TextInput
           style={styles.input}
           placeholder="********"
-          placeholderTextColor="#999999"
+          placeholderTextColor={Colors.gray}
           value={contrasena}
           onChangeText={setContrasena}
           secureTextEntry
         />
 
-        {/* Botón Ingresar */}
         <TouchableOpacity
           style={styles.button}
           onPress={manejarLogin}
           disabled={cargando}
         >
           {cargando ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={Colors.white} />
           ) : (
             <Text style={styles.buttonText}>INICIAR SESIÓN</Text>
           )}
@@ -163,39 +162,35 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: Colors.light,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     width: "100%",
     maxWidth: 400,
     padding: 30,
     borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
     elevation: 5,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    color: "#111",
+    color: Colors.dark,
     marginBottom: 5,
   },
   subtitle: {
     fontSize: 14,
     textAlign: "center",
-    color: "#666",
+    color: Colors.gray,
     marginBottom: 25,
   },
   selectorContainer: {
     flexDirection: "row",
-    backgroundColor: "#eee",
+    backgroundColor: Colors.light,
     borderRadius: 8,
     padding: 4,
     marginBottom: 20,
@@ -206,14 +201,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 6,
   },
-  activeRoleButton: { backgroundColor: "#1a252f" },
-  roleText: { fontSize: 14, fontWeight: "600", color: "#666" },
-  activeRoleText: { color: "#fff" },
-  label: { fontSize: 14, fontWeight: "500", color: "#333", marginBottom: 5 },
+  activeRoleButton: { backgroundColor: Colors.primary },
+  roleText: { fontSize: 14, fontWeight: "600", color: Colors.gray },
+  activeRoleText: { color: Colors.white },
+  label: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: Colors.dark,
+    marginBottom: 5,
+  },
   input: {
     backgroundColor: "#f9f9f9",
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: Colors.light,
     borderRadius: 8,
     padding: 12,
     fontSize: 14,
@@ -221,16 +221,16 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   button: {
-    backgroundColor: "#1a252f",
+    backgroundColor: Colors.dark,
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 10,
     width: "100%",
   },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  buttonText: { color: Colors.white, fontSize: 16, fontWeight: "bold" },
   cancelText: {
-    color: "#666",
+    color: Colors.gray,
     textAlign: "center",
     marginTop: 20,
     fontSize: 14,
